@@ -1,0 +1,20 @@
+---
+- name: Check if logstash is installed
+  command: bash -c "service --status-all | grep logstash"
+  register: logstash_installed
+  ignore_errors: True
+
+- name: Install necessary packages
+  apt: name=logstash state=present force=yes
+  when: logstash_installed|failed
+
+- name: Create logstash etc directory
+  file: path=/etc/logstash/conf.d state=directory
+  when: logstash_installed|failed
+
+- name: Add heroku logstash conf file
+  template: src=heroku.conf dest=/etc/logstash/conf.d/heroku.conf
+  when: logstash_installed|failed
+
+- name: Start logstash
+  service: name=logstash state=started enabled=yes

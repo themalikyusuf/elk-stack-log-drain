@@ -1,0 +1,58 @@
+---
+- name: Check if nginx is installed
+  command: bash -c "service --status-all | grep nginx"
+  register: nginx_installed
+  ignore_errors: True
+
+- name: Install nginx if its uninstalled
+  apt: name=nginx state=present force=yes
+  when: nginx_installed|failed
+
+- name: Start nginx
+  service: name=nginx state=started enabled=yes
+
+- name: Check if apache2-utils is installed
+  command: bash -c "dpkg --get-selections | grep apache2-utils"
+  register: apache2utils_installed
+  ignore_errors: True
+  tags:
+    - apache2utils_setup
+
+- name: Install apache2-utils if its uninstalled
+  apt: name=apache2-utils state=present force=yes
+  when: apache2utils_installed|failed
+  tags:
+    - apache2utils_setup
+
+- name: Create ssl directory
+  file: path=/etc/nginx/ssl state=directory
+
+- name: Create ssl certificate and generate rsa keys
+  command: openssl req -new -nodes -x509 -subj "/C=US/ST=Oregon/L=Portland/O=IT/CN"=${ansible_fqdn} -days 3650 -keyout /etc/nginx/ssl/server.key -out /etc/nginx/ssl/server.crt -extensions v3_ca creates=/etc/nginx/ssl/server.crt
+
+- name: Check if python-passlib is installed
+  command: bash -c "dpkg --get-selections | grep python-passlib"
+  register: python_passlib_installed
+  ignore_errors: True
+  tags:
+    - python_passlib_setup
+
+- name: Install python-passlib for htpasswd
+  apt: name=python-passlib state=present force=yes
+  when: python_passlib_installed|failed
+  tags:
+    - python_passlib_setup
+
+- name: Create kibana.htpasswd file, add username and password
+  htpasswd: path=/etc/nginx/conf.d/kibana.htpasswd name={{username}} password={{password}} crypt_scheme=md5_crypt
+  tags:
+    - kibana_htpasswd
+
+- name: Copy the default file and paste as a kibana file
+  copy: src=/etc/nginx/sites-available/default dest=/etc/nginx/sites-available/kibana remote_src=yes
+  tags:
+    - default_kibana
+
+- name: Symlink the kibana files
+  file: src=/etc/nginx/sites-available/kibana dest=/etc/nginx/sites-enabled/kibana state=link
+

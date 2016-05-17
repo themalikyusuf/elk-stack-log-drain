@@ -1,0 +1,9 @@
+---
+- hosts: all
+  user: vagrant
+  become: yes
+  become_method: sudo
+  vars_files:
+    - "/Users/Abdulmalik/desktop/elk-server/vars/vars.yml"
+  roles:
+    - nginx

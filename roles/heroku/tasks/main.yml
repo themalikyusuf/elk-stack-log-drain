@@ -1,0 +1,9 @@
+---
+- name: Check if heroku is installed
+  command: bash -c "/opt/logstash/bin/logstash-plugin | grep logstash-input-heroku && echo $?"
+  register: heroku_installed
+  ignore_errors: True
+
+- name: Install logstash heroku plugin
+  command: bash -c "/opt/logstash/bin/logstash-plugin install logstash-input-heroku"
+  when: heroku_installed|failed
