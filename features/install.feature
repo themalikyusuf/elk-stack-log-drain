@@ -43,8 +43,8 @@ Feature: Provision and Install
     Then it should be successful
     Then the kibana.htpasswd file should exists
 
-  Scenario: Copy the default file and paste as a kibana file
-    When I copy the default file and paste as a kibana file
+  Scenario: Copy and paste the kibana config file to the sites-enabled dir
+    When I copy and paste the kibana config file to the sites-enabled dir
     Then it should be successful
-    Then the kibana file should exists
+    Then the kibana config file should exists
 

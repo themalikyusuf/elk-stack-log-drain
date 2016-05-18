@@ -66,7 +66,7 @@ When(/^I create the ssl directory$/) do
 end
 
 Then(/^the ssl directory should contain the certificate and key$/) do
-  output, error, @status = Open3.capture3 "vagrant ssh -c 'ls /etc/nginx/sslz | grep server.*'"
+  output, error, @status = Open3.capture3 "vagrant ssh -c 'ls /etc/nginx/ssl | grep server.*'"
   expect(output).to eq("server.crt\nserver.key\n")
 end
 
@@ -80,13 +80,13 @@ Then(/^the kibana.htpasswd file should exists$/) do
   expect(output).to eq("kibana.htpasswd\n")
 end
 
-When(/^I copy the default file and paste as a kibana file$/) do
-  cmd = "ansible-playbook -i inventory.ini --private-key=.vagrant/machines/elkserver/virtualbox/private_key -u vagrant playbook.nginx.yml --tags 'default_kibana'"
+When(/^I copy and paste the kibana config file to the sites-enabled dir$/) do
+  cmd = "ansible-playbook -i inventory.ini --private-key=.vagrant/machines/elkserver/virtualbox/private_key -u vagrant playbook.nginx.yml --tags 'copy_kibana'"
   output, error, @status = Open3.capture3 "#{cmd}"
 end
 
-Then(/^the kibana file should exists$/) do
-  output, error, @status = Open3.capture3 "vagrant ssh -c 'ls /etc/nginx/sites-available/ | grep kibana'"
+Then(/^the kibana config file should exists$/) do
+  output, error, @status = Open3.capture3 "vagrant ssh -c 'ls /etc/nginx/sites-enabled/ | grep kibana'"
   expect(output).to match("kibana")
 end
 
