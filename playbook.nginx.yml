@@ -4,6 +4,6 @@
   become: yes
   become_method: sudo
   vars_files:
-    - "/Users/Abdulmalik/desktop/elk-server/vars/vars.yml"
+    - "/Users/Abdulmalik/desktop/elk-stack-log-drain/vars/vars.yml"
   roles:
     - nginx
